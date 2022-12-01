@@ -16,7 +16,7 @@ fn part_1(input: &str) -> u32 {
 
 #[aoc(day1, part2)]
 fn part_2(input: &str) -> u32 {
-    let mut list = input
+    input
         .trim()
         .split("\n\n")
         .map(|elf| {
@@ -24,10 +24,10 @@ fn part_2(input: &str) -> u32 {
                 .map(|item| item.trim().parse::<u32>().unwrap())
                 .sum::<u32>()
         })
-        .collect_vec();
-    list.sort();
-    let top_3 = &list[(list.len() - 3)..];
-    top_3.iter().sum()
+        .sorted()
+        .rev()
+        .take(3)
+        .sum()
 }
 
 #[cfg(test)]
