@@ -38,14 +38,14 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input = fs::read_to_string("test_input/day1.txt").expect("Error reading file");
+        let input = fs::read_to_string("test_input/day01.txt").expect("Error reading file");
 
         assert_eq!(part_1(&input), 24000);
     }
 
     #[test]
     fn test_part_2() {
-        let input = fs::read_to_string("test_input/day1.txt").expect("Error reading file");
+        let input = fs::read_to_string("test_input/day01.txt").expect("Error reading file");
 
         assert_eq!(part_2(&input), 45000);
     }

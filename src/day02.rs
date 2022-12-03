@@ -122,13 +122,13 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input = fs::read_to_string("test_input/day2.txt").expect("error reading file");
+        let input = fs::read_to_string("test_input/day02.txt").expect("error reading file");
         assert_eq!(part_2(&input), 12);
     }
 
     #[test]
     fn test_part_1() {
-        let input = fs::read_to_string("test_input/day2.txt").expect("error reading file");
+        let input = fs::read_to_string("test_input/day02.txt").expect("error reading file");
         assert_eq!(part_1(&input), 15);
     }
 }
