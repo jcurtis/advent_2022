@@ -1,4 +1,7 @@
-use std::str::{self};
+use std::{
+    collections::HashSet,
+    str::{self},
+};
 
 use itertools::Itertools;
 
@@ -19,6 +22,32 @@ fn solve_line(line: &str) -> u32 {
         }
     }
     0
+}
+
+#[aoc(day3, part1, HashSet)]
+fn part_1_hash_set(input: &str) -> u32 {
+    input
+        .trim()
+        .lines()
+        .map(str::as_bytes)
+        .map(|line| {
+            let half = line.len() / 2;
+            let first = &line[0..half];
+            let second = &line[half..];
+
+            let mut set = HashSet::new();
+            for c in first {
+                set.insert(c);
+            }
+            for c in second {
+                if set.contains(c) {
+                    return priority_from_byte(*c) as u32;
+                }
+            }
+
+            0
+        })
+        .sum()
 }
 
 fn priority_from_byte(input: u8) -> u8 {
@@ -65,6 +94,12 @@ mod tests {
     fn test_part_1() {
         let input = fs::read_to_string("test_input/day03.txt").expect("error reading file");
         assert_eq!(part_1(&input), 157);
+    }
+
+    #[test]
+    fn test_part_1_hash_set() {
+        let input = fs::read_to_string("test_input/day03.txt").expect("error reading file");
+        assert_eq!(part_1_hash_set(&input), 157);
     }
 
     #[test]
