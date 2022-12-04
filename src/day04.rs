@@ -1,6 +1,5 @@
 use itertools::Itertools;
 
-// Invalid: 469
 #[aoc(day4, part1)]
 fn part_1(input: &str) -> usize {
     input
