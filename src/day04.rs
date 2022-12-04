@@ -16,10 +16,7 @@ fn part_1(input: &str) -> usize {
                 return true;
             }
 
-            let second_overlaps =
-                (line[2]..=line[3]).all(|section| (line[0]..=line[1]).contains(&section));
-
-            second_overlaps
+            (line[2]..=line[3]).all(|section| (line[0]..=line[1]).contains(&section))
         })
         .count()
 }
@@ -40,10 +37,7 @@ fn part_2(input: &str) -> usize {
                 return true;
             }
 
-            let second_overlaps =
-                (line[2]..=line[3]).any(|section| (line[0]..=line[1]).contains(&section));
-
-            second_overlaps
+            (line[2]..=line[3]).any(|section| (line[0]..=line[1]).contains(&section))
         })
         .count()
 }
