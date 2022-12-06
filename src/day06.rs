@@ -23,11 +23,13 @@ fn part_1(input: &str) -> usize {
 #[aoc(day6, part2)]
 fn part_2(input: &str) -> usize {
     let chars = input.bytes().collect_vec();
-    let mut set: HashSet<u8> = HashSet::new();
+    let mut set = HashSet::new();
     for i in 14..chars.len() {
         set.clear();
         for j in 0..14 {
-            set.insert(chars[i - j]);
+            if !set.insert(chars[i - j]) {
+                break;
+            }
         }
         if set.len() == 14 {
             return i + 1;
