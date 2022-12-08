@@ -2,24 +2,12 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 
-#[derive(Debug, Clone)]
-struct Dir {
-    dirs: Vec<String>,
-    size: u32,
-}
-
-type FileSystem = HashMap<Vec<String>, Dir>;
+type FileSystem = HashMap<Vec<String>, u32>;
 
 #[aoc_generator(day7)]
 fn generator(input: &str) -> FileSystem {
     let mut file_system = HashMap::new();
-    file_system.insert(
-        vec!["/".to_string()],
-        Dir {
-            dirs: vec![],
-            size: 0,
-        },
-    );
+    file_system.insert(vec!["/".to_string()], 0);
     let mut pwd: Vec<String> = vec![];
 
     input.trim().lines().for_each(|line| {
@@ -39,10 +27,7 @@ fn generator(input: &str) -> FileSystem {
                         let dir = file_system.get_mut(&pwd);
                         let dir = match dir {
                             Some(d) => d.to_owned(),
-                            None => Dir {
-                                dirs: vec![],
-                                size: 0,
-                            },
+                            None => 0,
                         };
                         file_system.insert(pwd.clone(), dir);
                     }
@@ -55,8 +40,7 @@ fn generator(input: &str) -> FileSystem {
                 }
             },
             "dir" => {
-                let dir = file_system.get_mut(&pwd).unwrap();
-                dir.dirs.push(line[1].to_string());
+                // do nothing?
             }
             _ => {
                 let size: u32 = line[0].parse().unwrap();
@@ -64,8 +48,7 @@ fn generator(input: &str) -> FileSystem {
                 // bump all dir sizes
                 for i in 1..(pwd.len() + 1) {
                     let path = &pwd[0..i];
-                    let dir = file_system.get_mut(path).unwrap();
-                    dir.size += size;
+                    *file_system.get_mut(path).unwrap() += size;
                 }
             }
         };
@@ -79,8 +62,8 @@ fn part_1(input: &FileSystem) -> u32 {
     input
         .iter()
         .map(|(_, dir)| {
-            if dir.size <= 100000 {
-                return dir.size;
+            if *dir <= 100000 {
+                return *dir;
             }
             0
         })
@@ -90,12 +73,12 @@ fn part_1(input: &FileSystem) -> u32 {
 #[aoc(day7, part2)]
 fn part_2(input: &FileSystem) -> u32 {
     let root = vec!["/".to_string()];
-    let to_free_size = input.get(&root).unwrap().size - 40000000;
+    let to_free_size = input.get(&root).unwrap() - 40000000;
     input
         .iter()
         .filter_map(|(_, dir)| {
-            if dir.size >= to_free_size {
-                return Some(dir.size);
+            if *dir >= to_free_size {
+                return Some(*dir);
             }
             None
         })
