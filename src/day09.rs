@@ -1,22 +1,6 @@
 use std::collections::HashSet;
 
-fn step(direction: char, mut head: (i32, i32), mut tail: (i32, i32)) -> ((i32, i32), (i32, i32)) {
-    match direction {
-        'R' => {
-            head.0 += 1;
-        }
-        'L' => {
-            head.0 -= 1;
-        }
-        'U' => {
-            head.1 += 1;
-        }
-        'D' => {
-            head.1 -= 1;
-        }
-        _ => {}
-    };
-
+fn resolve_tail(head: (i32, i32), mut tail: (i32, i32)) -> (i32, i32) {
     let hor = head.0.abs_diff(tail.0) > 1;
     let ver = head.1.abs_diff(tail.1) > 1;
     if hor && head.1 != tail.1 || ver && head.0 != tail.0 {
@@ -50,23 +34,49 @@ fn step(direction: char, mut head: (i32, i32), mut tail: (i32, i32)) -> ((i32, i
         // println!("tail follows vertically {:?} {:?}", head, tail);
     };
 
-    (head, tail)
+    tail
+}
+
+fn step(direction: char, mut head: (i32, i32)) -> (i32, i32) {
+    match direction {
+        'R' => {
+            head.0 += 1;
+        }
+        'L' => {
+            head.0 -= 1;
+        }
+        'U' => {
+            head.1 += 1;
+        }
+        'D' => {
+            head.1 -= 1;
+        }
+        _ => {}
+    };
+
+    head
+}
+
+fn parse_motion(motion: &str) -> (char, u32) {
+    let mut motion = motion.split_whitespace();
+    let direction = motion.next().unwrap().chars().next().unwrap();
+    let steps = motion.next().unwrap().parse::<u32>().unwrap();
+    (direction, steps)
 }
 
 #[aoc(day09, part1)]
 fn part_1(input: &str) -> usize {
     let mut head: (i32, i32) = (0, 0);
     let mut tail: (i32, i32) = (0, 0);
-    let mut visited: HashSet<(i32, i32)> = HashSet::new();
+    let mut visited = HashSet::new();
     visited.insert((0, 0));
 
     input.trim().lines().for_each(|motion| {
-        let mut motion = motion.split_whitespace();
-        let direction = motion.next().unwrap().chars().next().unwrap();
-        let steps = motion.next().unwrap().parse::<u32>().unwrap();
+        let (direction, steps) = parse_motion(motion);
 
         (0..steps).for_each(|_| {
-            (head, tail) = step(direction, head, tail);
+            head = step(direction, head);
+            tail = resolve_tail(head, tail);
             visited.insert(tail);
         });
     });
@@ -75,8 +85,25 @@ fn part_1(input: &str) -> usize {
 }
 
 #[aoc(day09, part2)]
-fn part_2(_input: &str) -> usize {
-    todo!();
+fn part_2(input: &str) -> usize {
+    let mut snake = [(0, 0); 10];
+    let mut visited = HashSet::new();
+    visited.insert((0, 0));
+
+    input.trim().lines().for_each(|motion| {
+        let (direction, steps) = parse_motion(motion);
+
+        (0..steps).for_each(|_| {
+            snake[0] = step(direction, snake[0]);
+            for i in 0..9 {
+                snake[i + 1] = resolve_tail(snake[i], snake[i + 1]);
+            }
+            visited.insert(snake[9]);
+        });
+        // println!("{motion}: {:?}", &snake);
+    });
+
+    visited.len()
 }
 
 #[cfg(test)]
@@ -96,6 +123,13 @@ mod tests {
     fn test_part_2() {
         let input =
             fs::read_to_string("test_input/day09.txt").expect("Error reading test input file");
+        assert_eq!(part_2(&input), 1);
+    }
+
+    #[test]
+    fn test_part_2_2() {
+        let input =
+            fs::read_to_string("test_input/day09-2.txt").expect("Error reading test input file");
         assert_eq!(part_2(&input), 36);
     }
 }
