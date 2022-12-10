@@ -66,6 +66,20 @@ fn part_2(input: &[i32]) -> String {
         .join("\n")
 }
 
+#[aoc(day10, part2, chunks)]
+fn part_2_chunks(input: &[i32]) -> String {
+    input
+        .chunks(40)
+        .map(|chunk| {
+            chunk
+                .iter()
+                .enumerate()
+                .map(|(i, x)| map_sprite(i, *x))
+                .collect::<String>()
+        })
+        .join("\n")
+}
+
 #[cfg(test)]
 mod tests {
     use std::fs;
@@ -89,20 +103,27 @@ mod tests {
         assert_eq!(part_1(&input), 13140);
     }
 
+    const PART_2_EXPECTED: &str = "##..##..##..##..##..##..##..##..##..##..
+###...###...###...###...###...###...###.
+####....####....####....####....####....
+#####.....#####.....#####.....#####.....
+######......######......######......####
+#######.......#######.......#######.....";
+
     #[test]
     fn test_part_2() {
         let input =
             fs::read_to_string("test_input/day10.txt").expect("Error reading test input file");
         let input = generator(&input);
-        assert_eq!(
-            part_2(&input),
-            "##..##..##..##..##..##..##..##..##..##..
-###...###...###...###...###...###...###.
-####....####....####....####....####....
-#####.....#####.....#####.....#####.....
-######......######......######......####
-#######.......#######.......#######....."
-        );
+        assert_eq!(part_2(&input), PART_2_EXPECTED);
+    }
+
+    #[test]
+    fn test_part_2_chunks() {
+        let input =
+            fs::read_to_string("test_input/day10.txt").expect("Error reading test input file");
+        let input = generator(&input);
+        assert_eq!(part_2_chunks(&input), PART_2_EXPECTED);
     }
 }
 
