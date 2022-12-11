@@ -4,10 +4,22 @@ use itertools::Itertools;
 
 #[derive(Debug)]
 struct Monkey {
-    items: Vec<u32>,
-    inspected: u32,
-    operation: fn(u32) -> u32,
-    test: fn(u32) -> usize,
+    items: Vec<u128>,
+    inspected: u128,
+    operation: fn(u128) -> u128,
+    test: u128,
+    t: usize,
+    f: usize,
+}
+
+impl Monkey {
+    fn throw_to(&self, item: u128) -> usize {
+        if item % self.test == 0 {
+            self.t
+        } else {
+            self.f
+        }
+    }
 }
 
 fn get_input_monkeys() -> Vec<Monkey> {
@@ -16,61 +28,99 @@ fn get_input_monkeys() -> Vec<Monkey> {
             items: vec![89, 84, 88, 78, 70],
             inspected: 0,
             operation: |item| item * 5,
-            test: |item| if item % 7 == 0 { 6 } else { 7 },
+            test: 7,
+            t: 6,
+            f: 7,
         },
         Monkey {
             items: vec![76, 62, 61, 54, 69, 60, 85],
             inspected: 0,
             operation: |item| item + 1,
-            test: |item| if item % 17 == 0 { 0 } else { 6 },
+            test: 17,
+            t: 0,
+            f: 6,
         },
         Monkey {
             items: vec![83, 89, 53],
             inspected: 0,
             operation: |item| item + 8,
-            test: |item| if item % 11 == 0 { 5 } else { 3 },
+            test: 11,
+            t: 5,
+            f: 3,
         },
         Monkey {
             items: vec![95, 94, 85, 57],
             inspected: 0,
             operation: |item| item + 4,
-            test: |item| if item % 13 == 0 { 0 } else { 1 },
+            test: 13,
+            t: 0,
+            f: 1,
         },
         Monkey {
             items: vec![82, 98],
             inspected: 0,
             operation: |item| item + 7,
-            test: |item| if item % 19 == 0 { 5 } else { 2 },
+            test: 19,
+            t: 5,
+            f: 2,
         },
         Monkey {
             items: vec![69],
             inspected: 0,
             operation: |item| item + 2,
-            test: |item| if item % 2 == 0 { 1 } else { 3 },
+            test: 2,
+            t: 1,
+            f: 3,
         },
         Monkey {
             items: vec![82, 70, 58, 87, 59, 99, 92, 65],
             inspected: 0,
             operation: |item| item * 11,
-            test: |item| if item % 5 == 0 { 7 } else { 4 },
+            test: 5,
+            t: 7,
+            f: 4,
         },
         Monkey {
             items: vec![91, 53, 96, 98, 68, 82],
             inspected: 0,
             operation: |item| item * item,
-            test: |item| if item % 3 == 0 { 4 } else { 2 },
+            test: 3,
+            t: 4,
+            f: 2,
         },
     ]
 }
 
 #[aoc(day11, part1)]
-fn part_1(_input: &str) -> u32 {
+fn part_1(_input: &str) -> u128 {
     solve_part_1(get_input_monkeys())
 }
 
-fn solve_part_1(mut monkeys: Vec<Monkey>) -> u32 {
-    for _ in 0..20 {
-        process_round(&mut monkeys);
+fn solve_part_1(monkeys: Vec<Monkey>) -> u128 {
+    solve(monkeys, 20, Some(3))
+}
+
+#[aoc(day11, part2)]
+fn part_2(_input: &str) -> u128 {
+    solve_part_2(get_input_monkeys(), 10_000)
+}
+
+fn solve_part_2(monkeys: Vec<Monkey>, rounds: usize) -> u128 {
+    solve(monkeys, rounds, None)
+}
+
+fn find_modulo(monkeys: &[Monkey]) -> u128 {
+    monkeys
+        .iter()
+        .map(|monkey| monkey.test)
+        .reduce(|acc, test| acc * test)
+        .unwrap()
+}
+
+fn solve(mut monkeys: Vec<Monkey>, rounds: usize, worry_div: Option<u128>) -> u128 {
+    let modulo = find_modulo(&monkeys);
+    for _ in 0..rounds {
+        process_round(&mut monkeys, worry_div, modulo);
     }
     monkeys
         .iter()
@@ -82,12 +132,18 @@ fn solve_part_1(mut monkeys: Vec<Monkey>) -> u32 {
         .unwrap()
 }
 
-fn process_round<'a>(monkeys: &'a mut Vec<Monkey>) {
+fn process_round(monkeys: &mut Vec<Monkey>, worry_div: Option<u128>, modulo: u128) {
     for i in 0..monkeys.len() {
         let items = monkeys[i].items.drain(0..).collect_vec();
         for item in items {
-            let item = (monkeys[i].operation)(item) / 3;
-            let throw_to = (monkeys[i].test)(item);
+            let item = item % modulo;
+            let item = (monkeys[i].operation)(item);
+            let item = if let Some(divider) = worry_div {
+                item / divider
+            } else {
+                item
+            };
+            let throw_to = monkeys[i].throw_to(item);
             monkeys[throw_to].items.push(item);
             monkeys[i].inspected += 1;
         }
@@ -104,13 +160,15 @@ mod tests {
             items: vec![79, 98],
             inspected: 0,
             operation: |item| item * 19,
-            test: |item| if item % 23 == 0 { 2 } else { 3 },
+            test: 23,
+            t: 2,
+            f: 3,
         };
 
         assert_eq!((monkey.operation)(79), 1501);
-        assert_eq!((monkey.test)(79), 3);
-        assert_eq!((monkey.test)(23), 2);
-        assert_eq!((monkey.test)(46), 2);
+        assert_eq!(monkey.throw_to(79), 3);
+        assert_eq!(monkey.throw_to(23), 2);
+        assert_eq!(monkey.throw_to(46), 2);
     }
 
     fn get_test_monkeys() -> Vec<Monkey> {
@@ -119,25 +177,33 @@ mod tests {
                 items: vec![79, 98],
                 inspected: 0,
                 operation: |item| item * 19,
-                test: |item| if item % 23 == 0 { 2 } else { 3 },
+                test: 23,
+                t: 2,
+                f: 3,
             },
             Monkey {
                 items: vec![54, 65, 75, 74],
                 inspected: 0,
                 operation: |item| item + 6,
-                test: |item| if item % 19 == 0 { 2 } else { 0 },
+                test: 19,
+                t: 2,
+                f: 0,
             },
             Monkey {
                 items: vec![79, 60, 97],
                 inspected: 0,
                 operation: |item| item * item,
-                test: |item| if item % 13 == 0 { 1 } else { 3 },
+                test: 13,
+                t: 1,
+                f: 3,
             },
             Monkey {
                 items: vec![74],
                 inspected: 0,
                 operation: |item| item + 3,
-                test: |item| if item % 17 == 0 { 0 } else { 1 },
+                test: 17,
+                t: 0,
+                f: 1,
             },
         ]
     }
@@ -145,7 +211,8 @@ mod tests {
     #[test]
     fn test_process_round() {
         let mut monkeys = get_test_monkeys();
-        process_round(&mut monkeys);
+        let modulo = find_modulo(&monkeys);
+        process_round(&mut monkeys, Some(3), modulo);
 
         assert_eq!(monkeys[0].items, vec![20, 23, 27, 26]);
         assert_eq!(monkeys[0].inspected, 2);
@@ -164,5 +231,29 @@ mod tests {
     fn test_part_1() {
         let input = get_test_monkeys();
         assert_eq!(solve_part_1(input), 10605);
+    }
+
+    #[test]
+    fn test_part_2_1() {
+        let input = get_test_monkeys();
+        assert_eq!(solve_part_2(input, 1), 24);
+    }
+
+    #[test]
+    fn test_part_2_20() {
+        let input = get_test_monkeys();
+        assert_eq!(solve_part_2(input, 20), 10197);
+    }
+
+    #[test]
+    fn test_part_2_1000() {
+        let input = get_test_monkeys();
+        assert_eq!(solve_part_2(input, 1000), 27019168);
+    }
+
+    #[test]
+    fn test_part_2_10000() {
+        let input = get_test_monkeys();
+        assert_eq!(solve_part_2(input, 10_000), 2713310158);
     }
 }
