@@ -17,17 +17,17 @@ struct Grid {
 #[aoc_generator(day12)]
 fn generator(input: &str) -> Grid {
     let mut grid = HashMap::new();
-    let mut start = (0, 0);
-    let mut end = (0, 0);
+    let mut start = None;
+    let mut end = None;
     input.trim().lines().enumerate().for_each(|(y, line)| {
         for (x, item) in line.bytes().enumerate() {
             let val = match item {
                 b'S' => {
-                    start = (x as i32, y as i32);
+                    start = Some((x as i32, y as i32));
                     b'a'
                 }
                 b'E' => {
-                    end = (x as i32, y as i32);
+                    end = Some((x as i32, y as i32));
                     b'z'
                 }
                 b'a'..=b'z' => item,
@@ -39,8 +39,8 @@ fn generator(input: &str) -> Grid {
 
     Grid {
         grid,
-        start: (0, 0),
-        end,
+        start: start.unwrap(),
+        end: end.unwrap(),
     }
 }
 
