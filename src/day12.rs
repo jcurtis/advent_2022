@@ -1,6 +1,6 @@
 extern crate pathfinding;
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use itertools::Itertools;
 use pathfinding::prelude::bfs;
@@ -12,6 +12,7 @@ struct Grid {
     grid: HashMap<Pos, u8>,
     start: Pos,
     end: Pos,
+    lowest: HashSet<Pos>,
 }
 
 #[aoc_generator(day12)]
@@ -19,6 +20,8 @@ fn generator(input: &str) -> Grid {
     let mut grid = HashMap::new();
     let mut start = None;
     let mut end = None;
+    let mut lowest = HashSet::new();
+
     input.trim().lines().enumerate().for_each(|(y, line)| {
         for (x, item) in line.bytes().enumerate() {
             let val = match item {
@@ -30,17 +33,25 @@ fn generator(input: &str) -> Grid {
                     end = Some((x as i32, y as i32));
                     b'z'
                 }
-                b'a'..=b'z' => item,
+                b'a' => {
+                    lowest.insert((x as i32, y as i32));
+                    item
+                }
+                b'b'..=b'z' => item,
                 _ => unreachable!(),
             };
             grid.insert((x as i32, y as i32), val);
         }
     });
 
+    let start = start.unwrap();
+    lowest.insert(start);
+
     Grid {
         grid,
-        start: start.unwrap(),
+        start,
         end: end.unwrap(),
+        lowest,
     }
 }
 
@@ -95,6 +106,32 @@ fn check_direction(input: &Grid, pos: Pos, dir: Dir) -> Option<Pos> {
     None
 }
 
+#[aoc(day12, part2)]
+fn part_2(input: &Grid) -> usize {
+    input
+        .lowest
+        .iter()
+        .filter_map(|start| {
+            let result = bfs(
+                start,
+                |&pos| {
+                    DIRS.iter()
+                        .flat_map(|dir| check_direction(input, pos, *dir))
+                        .collect_vec()
+                },
+                |&p| p == input.end,
+            );
+            if let Some(res) = result {
+                Some(res.len()).map(|len| len - 1)
+            } else {
+                None
+            }
+        })
+        .sorted()
+        .next()
+        .unwrap()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -120,5 +157,11 @@ abdefghi
     fn test_part_1() {
         let input = generator(SAMPLE);
         assert_eq!(part_1(&input), 31);
+    }
+
+    #[test]
+    fn test_part_2() {
+        let input = generator(SAMPLE);
+        assert_eq!(part_2(&input), 29);
     }
 }
