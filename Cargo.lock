@@ -9,6 +9,7 @@ dependencies = [
  "aoc-runner",
  "aoc-runner-derive",
  "itertools",
+ "serde_json",
 ]
 
 [[package]]
