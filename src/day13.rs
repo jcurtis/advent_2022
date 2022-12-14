@@ -17,8 +17,8 @@ fn part_1(input: &str) -> usize {
         .enumerate()
         .filter_map(|(i, pairs)| {
             let pairs = pairs.split_whitespace().collect_vec();
-            let left: &Vec<Value> = &serde_json::from_str(pairs[0]).unwrap();
-            let right: &Vec<Value> = &serde_json::from_str(pairs[1]).unwrap();
+            let left: &Vec<Value> = &from_str(pairs[0]);
+            let right: &Vec<Value> = &from_str(pairs[1]);
             if solve_pair(left, right) {
                 Some(i + 1)
             } else {
@@ -50,7 +50,7 @@ fn test(left: &Value, right: &Value) -> ControlFlow<bool> {
             let right = vec![json!(right.as_u64().unwrap())];
             solve_pair_rec(left, &right)
         }
-        _ => todo!(),
+        _ => unreachable!(),
     }
 }
 
@@ -74,6 +74,10 @@ fn solve_pair_rec(input_left: &[Value], input_right: &[Value]) -> ControlFlow<bo
         })
 }
 
+fn from_str(input: &str) -> Vec<Value> {
+    serde_json::from_str(input).unwrap()
+}
+
 const DIV_2: &str = "[[2]]";
 const DIV_6: &str = "[[6]]";
 
@@ -95,8 +99,8 @@ fn part_2(input: &str) -> u32 {
         })
         .collect_vec();
 
-    let div_2: Vec<Value> = serde_json::from_str(DIV_2).unwrap();
-    let div_6: Vec<Value> = serde_json::from_str(DIV_6).unwrap();
+    let div_2 = from_str(DIV_2);
+    let div_6 = from_str(DIV_6);
 
     let div_2_pos = res.iter().position(|item| item == &div_2).unwrap() as u32;
     let div_6_pos = res.iter().position(|item| item == &div_6).unwrap() as u32;
@@ -115,10 +119,6 @@ mod tests {
         let input =
             fs::read_to_string("test_input/day13.txt").expect("Error reading test input file");
         assert_eq!(part_1(&input), 13);
-    }
-
-    fn from_str(input: &str) -> Vec<Value> {
-        serde_json::from_str(input).unwrap()
     }
 
     #[test]
