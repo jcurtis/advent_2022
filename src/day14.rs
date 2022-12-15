@@ -109,7 +109,7 @@ fn part_2(input: &Grid) -> usize {
             sand = next_sand;
         }
         if sand == START_POS {
-            println!("Reached top!");
+            // println!("Reached top!");
             return i;
         }
         input.add_vertex(sand);
