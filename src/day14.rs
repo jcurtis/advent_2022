@@ -27,7 +27,6 @@ fn generator(input: &str) -> Grid {
                 })
                 .tuple_windows()
                 .flat_map(|(a, b)| {
-                    // todo
                     if a.0 == b.0 {
                         let range = get_range(a.1, b.1);
                         return range.map(|y| (a.0, y)).collect_vec();
@@ -39,7 +38,7 @@ fn generator(input: &str) -> Grid {
         .collect()
 }
 
-fn check_bellow(input: &Grid, pos: (usize, usize)) -> Option<(usize, usize)> {
+fn check_below(input: &Grid, pos: (usize, usize)) -> Option<(usize, usize)> {
     let down = (pos.0, pos.1 + 1);
     if !input.has_vertex(down) {
         return Some(down);
@@ -69,7 +68,7 @@ const START_POS: (usize, usize) = (500, 0);
 
 fn drop_sand(input: &mut Grid, max_height: usize) -> State {
     let mut sand = START_POS;
-    while let Some(next_sand) = check_bellow(input, sand) {
+    while let Some(next_sand) = check_below(input, sand) {
         if next_sand.1 > max_height {
             return State::Dropped;
         }
@@ -106,7 +105,7 @@ fn part_2(input: &Grid) -> usize {
 
     for i in 1..100000 {
         let mut sand = START_POS;
-        while let Some(next_sand) = check_bellow(&input, sand) {
+        while let Some(next_sand) = check_below(&input, sand) {
             sand = next_sand;
         }
         if sand == START_POS {
