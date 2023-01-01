@@ -9,11 +9,14 @@ use itertools::{
 };
 use serde_json::{json, Value};
 
+use crate::double_line_ending;
+
 #[aoc(day13, part1)]
 fn part_1(input: &str) -> usize {
+    let delimiter = double_line_ending();
     input
         .trim()
-        .split("\n\n")
+        .split(&delimiter)
         .enumerate()
         .filter_map(|(i, pairs)| {
             let pairs = pairs.split_whitespace().collect_vec();

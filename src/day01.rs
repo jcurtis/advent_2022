@@ -1,10 +1,13 @@
 use itertools::Itertools;
 
+use crate::double_line_ending;
+
 #[aoc(day1, part1)]
 fn part_1(input: &str) -> u32 {
+    let delimiter = double_line_ending();
     input
         .trim()
-        .split("\n\n")
+        .split(&delimiter)
         .map(|elf| {
             elf.lines()
                 .map(|item| item.trim().parse::<u32>().unwrap())
@@ -16,9 +19,10 @@ fn part_1(input: &str) -> u32 {
 
 #[aoc(day1, part2)]
 fn part_2(input: &str) -> u32 {
+    let delimiter = double_line_ending();
     input
         .trim()
-        .split("\n\n")
+        .split(&delimiter)
         .map(|elf| {
             elf.lines()
                 .map(|item| item.trim().parse::<u32>().unwrap())

@@ -155,7 +155,7 @@ fn find_most_value(valves: &Input, target_valves: &Vec<&V>, current_v: &V, rem_c
 fn expected_flow_rate(valves: &Input, current_v: &V, target_v: &V, rem_cycles: u32) -> u32 {
     let current = valves.get(current_v).unwrap();
     let target = valves.get(target_v).unwrap();
-    let dist = *current.distances.get(target_v).unwrap() as u32;
+    let dist = *current.distances.get(target_v).unwrap();
     let value = if dist > rem_cycles {
         0
     } else if dist == 0 {

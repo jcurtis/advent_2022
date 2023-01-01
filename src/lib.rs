@@ -21,3 +21,14 @@ extern crate aoc_runner;
 extern crate aoc_runner_derive;
 
 aoc_lib! { year = 2022 }
+
+#[cfg(windows)]
+pub const LINE_ENDING: &str = "\r\n";
+#[cfg(not(windows))]
+pub const LINE_ENDING: &str = "\n";
+
+pub fn double_line_ending() -> String {
+    let mut token = LINE_ENDING.to_owned();
+    token.push_str(LINE_ENDING);
+    token
+}
